@@ -60,12 +60,10 @@ func (hu *HuaBanAPIV3) SetClient(client *http.Client) {
 	hu.client = client
 }
 func (hu *HuaBanAPIV3) Login() error {
-	cookie, err := Login(hu.account, hu.password)
-	hu.Header["Cookie"] = cookie
+	userName, err := Login(hu.client, hu.account, hu.password, hu.Header)
 	if err != nil {
 		return err
 	}
-	userName, err := getUserName(hu.client, hu.Header)
 	hu.userName = userName
 	if err != nil {
 		log.Printf("获取用户名失败...%v\n", err)

@@ -34,7 +34,7 @@ func getProxyHttpClient() *http.Client {
 }
 
 // 获取登录 Cookie 的函数
-func getCookie(account, password string) (string, error) {
+func getCookie(client *http.Client, account, password string) (string, error) {
 	apiUrl := DOMAIN + "/v3/auth/"
 	dataUrl := url.Values{
 		"email":    {account},
@@ -42,11 +42,13 @@ func getCookie(account, password string) (string, error) {
 	}
 	data := bytes.NewBufferString(dataUrl.Encode())
 	// 创建一个 HTTP 客户端，并设置 CheckRedirect 函数来禁止重定向
-	client := &http.Client{
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			return http.ErrUseLastResponse
-		},
+
+	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		return http.ErrUseLastResponse
 	}
+	defer func() {
+		client.CheckRedirect = nil
+	}()
 	req, err := http.NewRequest("POST", apiUrl, data)
 	if err != nil {
 		fmt.Println("创建请求失败:", err)
@@ -67,9 +69,10 @@ func getCookie(account, password string) (string, error) {
 		fmt.Println("读取响应失败:", err)
 		return "", err
 	}
-
 	// 处理响应
 	responseText := string(body)
+	log.Printf("用户名密码登录范湖:%v\n", responseText)
+
 	// 提取 Cookie
 	cookies := res.Cookies()
 	cookieArr := []string{}
@@ -287,7 +290,7 @@ func GetAllFiles(path string) ([]string, error) {
 	}
 	if !stat.IsDir() {
 		files = append(files, path)
-		return nil, err
+		return files, err
 	}
 	err = filepath.WalkDir(path, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
@@ -297,7 +300,7 @@ func GetAllFiles(path string) ([]string, error) {
 			return nil
 		}
 		switch strings.ToLower(filepath.Ext(path)) {
-		case ".jpg", ".png", ".jpeg", ".webp":
+		case ".jpg", ".png", ".jpeg", ".webp", ".gif":
 			files = append(files, path)
 		}
 		return nil

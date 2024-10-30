@@ -4,31 +4,36 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+	"net/http"
 	"os"
 )
 
-func Login(account, password string) (cookie string, err error) {
-	cookie, err = cookieLogin(account)
+func Login(client *http.Client, account, password string, header map[string]string) (name string, err error) {
+	name, err = cookieLogin(client, account, header)
 	if err != nil {
-		log.Printf("尝试使用缓存Cookie登录失败，将尝试使用账密登录...%v", err)
-		cookie, err = passwordLogin(account, password)
+		log.Printf("使用缓存cookie获取用户名失败,刷新cookie..%v\n", err)
+		cookie, err := passwordLogin(client, account, password)
 		if err != nil {
-			return
+			return "", err
 		}
-		return
+		header["Cookie"] = cookie
+		name, err = getUserName(http.DefaultClient, header)
+		if err != nil {
+			return "", err
+		}
+		return name, nil
 	}
-	return cookie, err
+	return name, nil
 }
-func passwordLogin(account, password string) (string, error) {
+func passwordLogin(client *http.Client, account, password string) (string, error) {
 	// 使用账密登录
 	log.Println("使用账密登录...")
-	cookie, err := getCookie(account, password)
+	cookie, err := getCookie(client, account, password)
 	if err != nil || cookie == "" {
 		log.Printf("获取Cookie失败: %v", err)
-		return cookie, err
+		return "", err
 	}
 	log.Printf("账密登录成功，获取到cookies:%s", cookie)
-
 	saveCookie(account, cookie)
 	return cookie, nil
 }
@@ -45,7 +50,7 @@ func saveCookie(account, cookie string) {
 		log.Println("缓存Cookie成功")
 	}
 }
-func cookieLogin(account string) (cookie string, err error) {
+func cookieLogin(client *http.Client, account string, header map[string]string) (name string, err error) {
 	// 检查 cookie.json 文件是否存在且有效
 	info, err := os.Stat(COOKIEJSONPATH)
 	if err != nil || info.IsDir() {
@@ -67,5 +72,11 @@ func cookieLogin(account string) (cookie string, err error) {
 		err = errors.New("找到不发送缓存Cookie对应的用户名...")
 		return
 	}
-	return cookie, nil
+	header["Cookie"] = cookie
+	log.Printf("尝试使用缓存Cookie获取用户名...")
+	name, err = getUserName(client, header)
+	if err != nil {
+		return
+	}
+	return name, nil
 }
