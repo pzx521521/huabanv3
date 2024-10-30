@@ -1,0 +1,57 @@
+
+curl 'https://huaban.com/v3/auth/' \
+  -H 'content-type: application/x-www-form-urlencoded' \
+  -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36' \
+  --data-raw 'email=xxxx&password=xxxx'
+
+curl 'https://huaban.com/follow' \
+  -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
+
+# create boards
+curl 'https://huaban.com/v3/boards' \
+  -H 'content-type: application/json' \
+  -H 'cookie: user_device_id=3736b6b7e22342aaa541576099cc6955; user_device_id_timestamp=1730144899159; fd_id=cca8dbe21183b137c8fcd310726e668a; fd_id_timestamp=1730144958186; sid=s%3ANvtBqsCjsVVPl228Ufm_GN2oZKySfw93.1k2IF0iAqOTiM0S02FF9Sn2YQGB0aYI6cIKXxxxsRJg; uid=40638696; gd_id=2030065822356844551; token.org_id.prod=8030057300642871319; x-product-type=INDIVIDUAL_FREE; acw_tc=0b32807617302610989021279e3809f148f0d301c20782e5dd18e382d7b834; canary_uuid=94462ec7724757a33f36acbd4af28665; canary=.?base; Hm_lvt_d4a0e7c3cd16eb58a65472f40e7ee543=1730101273,1730217634,1730261100; HMACCOUNT=487556C4532B99D9; has_org.prod=1; x-ab-test-id=bd4b06c8f0b340273f1040bc9f5e09a3; utm_data=eyJ0eXBlIjoib3RoZXIiLCJmcm9tIjoiaHVhYmFuLmNvbSJ9; utm_switch=1; referer=https%3A%2F%2Fgd.huaban.com%2F; gray-user.prod=1; Hm_lpvt_d4a0e7c3cd16eb58a65472f40e7ee543=1730261314; huaban-page-setting={%22columnType%22:%22full%22%2C%22limit%22:4}' \
+  --data-raw '{"title":"huolinger","category":"illustration","is_private":"0","creation":"false"}'
+
+//delete boards
+curl 'https://huaban.com/v3/boards/94048210' \
+  -X 'DELETE' \
+  -H 'cookie: user_device_id=3736b6b7e22342aaa541576099cc6955; user_device_id_timestamp=1730144899159; fd_id=cca8dbe21183b137c8fcd310726e668a; fd_id_timestamp=1730144958186; sid=s%3ANvtBqsCjsVVPl228Ufm_GN2oZKySfw93.1k2IF0iAqOTiM0S02FF9Sn2YQGB0aYI6cIKXxxxsRJg; uid=40638696; gd_id=2030065822356844551; token.org_id.prod=8030057300642871319; x-product-type=INDIVIDUAL_FREE; canary_uuid=94462ec7724757a33f36acbd4af28665; Hm_lvt_d4a0e7c3cd16eb58a65472f40e7ee543=1730101273,1730217634,1730261100; HMACCOUNT=487556C4532B99D9; has_org.prod=1; utm_data=eyJ0eXBlIjoib3RoZXIiLCJmcm9tIjoiaHVhYmFuLmNvbSJ9; utm_switch=1; referer=https%3A%2F%2Fgd.huaban.com%2F; gray-user.prod=1; huaban-page-setting={%22columnType%22:%22full%22%2C%22limit%22:4}; acw_tc=0b63bb3617302676717536682e5b20a5c589f551aaa0583ae21bc2d3883146; canary=.?base; Hm_lpvt_d4a0e7c3cd16eb58a65472f40e7ee543=1730268201' \
+  -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36' \
+
+curl 'https://huaban.com/v3/parap/boards?limit=30&fields=boards:BOARD%7Cuser,total,page_num,page_size&urlname=parap' \
+  -H 'cookie: user_device_id=a72a4e3a87134738b0f13056e0d2d560; user_device_id_timestamp=1730128965187; huaban-page-setting={%22columnType%22:%22full%22%2C%22limit%22:4}; Hm_lvt_d4a0e7c3cd16eb58a65472f40e7ee543=1730101273; fd_id=cca8dbe21183b137c8fcd310726e668a; fd_id_timestamp=1730128966908; acw_tc=0b32807617301307729345113e38a9c28942f6aeaacc044e24bdd457a4df2a; x-product-type=INDIVIDUAL_FREE; sid=s%3AjEtruZ-5Ty_Me2G_9vYc7KPRnth40Zwx.RMxJkAxyHaUMwRTNGAddAnKwFLfmr%2B2UU9IgbgbrY5Y; uid=40638696; gd_id=2030065822356844551; token.org_id.prod=8030057300642871319; tfstk=feFngqN_BctXF1JiSOlCELObQrX9QeGSIud-2bnPQco_2pBCFb2ojuiKpXuK4Q4of0QIe9ayR5qDwBICdzRowbSADsCYR2GSaiBwOf0yA4uX4_HEzA7_moHCDsCY8Is6mcIY9604Gmura2krah7iy4nra2kPScuolL-U4uzNS40y40kEac5Zu2cr4ulPSPkbsFoL4kNNABLyIgaBNJgnK0A-jQ2ziIHi0yoMaiPi-3o48cAyaDnAvy4z4gA-g-ZgZxPFZCGLoRlZ57I6T02ZozhgZMOKVXujh-HMYwgLUPwrASjkiDPQI7cTggOYmkEaMbFFydqqED2aTAYyafh3Iu2ogh7sJ8z_UDNcqImUOP2xEJsDhozTkWM_ZixZVJ3j_VNRfBouQ4SP-dJV6WOS7aFwFLME5VmxdIQvyvTR2_7GSKyjLVgFMNbMFeHE5VmASNvVavus8sC..; Hm_lpvt_d4a0e7c3cd16eb58a65472f40e7ee543=1730131150' \
+  -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
+
+curl 'https://huaban.com/v3/boards/94004345/pins?limit=40&max=6374927787&fields=pins:PIN%7Cboard:BOARD_DETAIL%7Ccheck' \
+  -H 'cookie: user_device_id=a72a4e3a87134738b0f13056e0d2d560; user_device_id_timestamp=1730128965187; Hm_lvt_d4a0e7c3cd16eb58a65472f40e7ee543=1730101273; fd_id=cca8dbe21183b137c8fcd310726e668a; fd_id_timestamp=1730128966908; x-product-type=INDIVIDUAL_FREE; sid=s%3AjEtruZ-5Ty_Me2G_9vYc7KPRnth40Zwx.RMxJkAxyHaUMwRTNGAddAnKwFLfmr%2B2UU9IgbgbrY5Y; tfstk=feFngqN_BctXF1JiSOlCELObQrX9QeGSIud-2bnPQco_2pBCFb2ojuiKpXuK4Q4of0QIe9ayR5qDwBICdzRowbSADsCYR2GSaiBwOf0yA4uX4_HEzA7_moHCDsCY8Is6mcIY9604Gmura2krah7iy4nra2kPScuolL-U4uzNS40y40kEac5Zu2cr4ulPSPkbsFoL4kNNABLyIgaBNJgnK0A-jQ2ziIHi0yoMaiPi-3o48cAyaDnAvy4z4gA-g-ZgZxPFZCGLoRlZ57I6T02ZozhgZMOKVXujh-HMYwgLUPwrASjkiDPQI7cTggOYmkEaMbFFydqqED2aTAYyafh3Iu2ogh7sJ8z_UDNcqImUOP2xEJsDhozTkWM_ZixZVJ3j_VNRfBouQ4SP-dJV6WOS7aFwFLME5VmxdIQvyvTR2_7GSKyjLVgFMNbMFeHE5VmASNvVavus8sC..; HMACCOUNT=CC33EABE679E5A63; huaban-page-setting={%22columnType%22:%22full%22%2C%22limit%22:4}; acw_tc=0b32825a17301345034211574e05f1e24b20e67fd17655409c472471ab7add; Hm_lpvt_d4a0e7c3cd16eb58a65472f40e7ee543=1730134592' \
+  -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
+
+//modify pin
+curl 'https://huaban.com/v3/pins/6375141434' \
+  -X 'PUT' \
+  -H 'content-type: application/json' \
+  -H 'cookie: user_device_id=a72a4e3a87134738b0f13056e0d2d560; user_device_id_timestamp=1730128965187; Hm_lvt_d4a0e7c3cd16eb58a65472f40e7ee543=1730101273; fd_id=cca8dbe21183b137c8fcd310726e668a; fd_id_timestamp=1730128966908; x-product-type=INDIVIDUAL_FREE; tfstk=feFngqN_BctXF1JiSOlCELObQrX9QeGSIud-2bnPQco_2pBCFb2ojuiKpXuK4Q4of0QIe9ayR5qDwBICdzRowbSADsCYR2GSaiBwOf0yA4uX4_HEzA7_moHCDsCY8Is6mcIY9604Gmura2krah7iy4nra2kPScuolL-U4uzNS40y40kEac5Zu2cr4ulPSPkbsFoL4kNNABLyIgaBNJgnK0A-jQ2ziIHi0yoMaiPi-3o48cAyaDnAvy4z4gA-g-ZgZxPFZCGLoRlZ57I6T02ZozhgZMOKVXujh-HMYwgLUPwrASjkiDPQI7cTggOYmkEaMbFFydqqED2aTAYyafh3Iu2ogh7sJ8z_UDNcqImUOP2xEJsDhozTkWM_ZixZVJ3j_VNRfBouQ4SP-dJV6WOS7aFwFLME5VmxdIQvyvTR2_7GSKyjLVgFMNbMFeHE5VmASNvVavus8sC..; HMACCOUNT=CC33EABE679E5A63; acw_tc=0b32825a17301371313823005e05d6bd5047d658667e7a9ae26fdbcd44925d; sid=s%3AFKuNC_D4t-a2hLOSq0MrT3BjMTh7D5Ry.18hHkPtBP6%2Fp0U4VAO8xXrlqjrVzCX%2BkrqQlfxv1lOc; uid=40638696; gd_id=2030065822356844551; token.org_id.prod=8030057300642871319; huaban-page-setting={%22columnType%22:%22full%22%2C%22limit%22:4}; Hm_lpvt_d4a0e7c3cd16eb58a65472f40e7ee543=1730137982' \
+  -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36' \
+  --data-raw '{"pin_id":6375141434,"board_id":94018210,"text":"灰黑红805f11","link":"213123","tags":["测试长度的标签"],"aigc":{"aigc_category":"stable_diffusion","model":"123123123","prompt":"11111111"}}'
+
+curl 'https://huaban.com/v3/upload' \
+  -H 'cookie: user_device_id=3c12e0ad38d044a6b8bdbbd5b269e044; fd_id=cca8dbe21183b137c8fcd310726e668a; fd_id_timestamp=1729418887990; sid=s%3AvRDKrbedJCF5tO7TXNu_oQ8AQlaPCxEK.Kuz5HSQI%2FdU0q29z9ULuHo1w5xIOJ3QrAvXp5dWZmcE; uid=40638696; gd_id=2030065822356844551; token.org_id.prod=8030057300642871319; referer=https%3A%2F%2Fgd.huaban.com%2F; x-product-type=INDIVIDUAL_FREE; utm_data=eyJ0eXBlIjoib3RoZXIiLCJmcm9tIjoiaHVhYmFuLmNvbSJ9; utm_switch=1; user_device_id_timestamp=1730024215535; gray-user.prod=1; Hm_lvt_d4a0e7c3cd16eb58a65472f40e7ee543=1730101273; HMACCOUNT=B9F3BD920AD5473F; has_org.prod=1; huaban-page-setting={%22columnType%22:%22full%22%2C%22limit%22:4}; acw_tc=0b32807617301067858083551e37dde95dd903827f33c6f2c3e13788559976; Hm_lpvt_d4a0e7c3cd16eb58a65472f40e7ee543=1730106830' \
+  -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36' \
+  -F 'file=@/Users/parapeng/Documents/WallPaper/rename/huaban/test.jpg'
+
+curl 'https://huaban.com/v3/pins/batch' \
+  -H 'content-type: application/json' \
+  -H 'cookie: user_device_id=3736b6b7e22342aaa541576099cc6955; user_device_id_timestamp=1730144899159; fd_id=cca8dbe21183b137c8fcd310726e668a; fd_id_timestamp=1730144958186; sid=s%3ANvtBqsCjsVVPl228Ufm_GN2oZKySfw93.1k2IF0iAqOTiM0S02FF9Sn2YQGB0aYI6cIKXxxxsRJg; uid=40638696; gd_id=2030065822356844551; token.org_id.prod=8030057300642871319; x-product-type=INDIVIDUAL_FREE; canary_uuid=94462ec7724757a33f36acbd4af28665; Hm_lvt_d4a0e7c3cd16eb58a65472f40e7ee543=1730101273,1730217634,1730261100; HMACCOUNT=487556C4532B99D9; has_org.prod=1; utm_data=eyJ0eXBlIjoib3RoZXIiLCJmcm9tIjoiaHVhYmFuLmNvbSJ9; utm_switch=1; referer=https%3A%2F%2Fgd.huaban.com%2F; gray-user.prod=1; acw_tc=0b63bb3617302676717536682e5b20a5c589f551aaa0583ae21bc2d3883146; canary=.?base; Hm_lpvt_d4a0e7c3cd16eb58a65472f40e7ee543=1730268668; huaban-page-setting={%22columnType%22:%22full%22%2C%22limit%22:4}' \
+  -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36' \
+  -H 'x-gd-traffic-tags: base' \
+  --data-raw '{"board_id":94047131,"pins":[{"file_id":827073586,"text":"I黑红蓝644f24","tags":["测试长度的标签"],"aigc":{"aigc_category":"stable_diffusion","prompt":"prompt"}},{"file_id":827073587,"text":"I黑青灰3c3332"}]}'
+
+
+curl 'https://huaban.com/v3/upload' \
+  -H 'accept: application/json, text/plain, */*' \
+  -H 'content-type: multipart/form-data; boundary=----WebKitFormBoundary4tcY7evZfiFogE1t' \
+  -H 'cookie: user_device_id=3736b6b7e22342aaa541576099cc6955; user_device_id_timestamp=1730144899159; fd_id=cca8dbe21183b137c8fcd310726e668a; fd_id_timestamp=1730144958186; sid=s%3ANvtBqsCjsVVPl228Ufm_GN2oZKySfw93.1k2IF0iAqOTiM0S02FF9Sn2YQGB0aYI6cIKXxxxsRJg; uid=40638696; gd_id=2030065822356844551; token.org_id.prod=8030057300642871319; x-product-type=INDIVIDUAL_FREE; canary_uuid=94462ec7724757a33f36acbd4af28665; Hm_lvt_d4a0e7c3cd16eb58a65472f40e7ee543=1730101273,1730217634,1730261100; HMACCOUNT=487556C4532B99D9; has_org.prod=1; utm_data=eyJ0eXBlIjoib3RoZXIiLCJmcm9tIjoiaHVhYmFuLmNvbSJ9; utm_switch=1; referer=https%3A%2F%2Fgd.huaban.com%2F; gray-user.prod=1; acw_tc=0b63bb3617302676717536682e5b20a5c589f551aaa0583ae21bc2d3883146; canary=.?base; Hm_lpvt_d4a0e7c3cd16eb58a65472f40e7ee543=1730268668; huaban-page-setting={%22columnType%22:%22full%22%2C%22limit%22:4}' \
+  -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36' \
+  -H 'x-gd-traffic-tags: base' \
+  --data-raw $'------WebKitFormBoundary4tcY7evZfiFogE1t\r\nContent-Disposition: form-data; name="file"; filename="I黑红蓝644f24.jpg"\r\nContent-Type: image/jpeg\r\n\r\n\r\n------WebKitFormBoundary4tcY7evZfiFogE1t--\r\n'
