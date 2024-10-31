@@ -1,8 +1,9 @@
-# 花瓣网图片 API v3 golang版本
+# [花瓣网图片 API v3](https://github.com/pzx521521/typora-plugin-huaban) golang版本
 花瓣网图片批量上传/下载工具  
 [python版本的](https://github.com/Pingze-github/HuabanBatchUpload)这个太老了 已经不能用了,现在是V3接口  
 可以作为**图床**.  
-
+[github](https://github.com/pzx521521/typora-plugin-huaban)
+[api](https://github.com/pzx521521/huabanv3)
 ## 与[bilibili](https://github.com/xlzy520/bilibili-img-uploader)图床比较
 |          | 跨域 | 网页直接使用 | 不压缩          |
 |----------|---|--------|--------------|
@@ -27,7 +28,8 @@ bilibili跨域很好玩,比如在图片中存储数据(写在最后面),然后fe
 
 ## 使用方法 
 ### 如果你只想要上传功能 
-使用[typora-plugin-huaban](https://github.com/pzx521521/typora-plugin-huaban)
+使用[typora-plugin-huaban](https://github.com/pzx521521/typora-plugin-huaban)  
+### 安装
 ```cmd
 go get github.com/pzx521521/huabanv3
 ```
