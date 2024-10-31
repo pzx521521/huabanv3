@@ -230,6 +230,10 @@ func getMutipart(filepath string) (*bytes.Buffer, *multipart.Writer, error) {
 
 // 添加画板
 func addBoard(client *http.Client, header map[string]string, body *BatchInfo) error {
+	if body.BoardId == 0 {
+		log.Printf("board id:%d, 不进行添加到画板操作\n", body.BoardId)
+		return nil
+	}
 	apiUrl := DOMAIN + "/v3/pins/batch"
 	jsonData, err := json.Marshal(body)
 	// 创建请求主体

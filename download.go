@@ -30,7 +30,7 @@ func DownloadBoard(boardID int, poolSize int, rawText bool) error {
 	var eg errgroup.Group
 	semaphore := make(chan struct{}, poolSize)
 	client := http.DefaultClient
-	pinInfo, err := getImgInfos(client, boardID)
+	pinInfo, err := GetImgInfos(client, boardID)
 	log.Printf("共发现%v张图片\n", len(pinInfo))
 	if err != nil {
 		return err
@@ -91,7 +91,7 @@ func downloadImageMuti(client *http.Client, imgInfo *Pin, dirPath string, rawTex
 	return nil
 }
 
-func getImgInfos(client *http.Client, boardID int) ([]*Pin, error) {
+func GetImgInfos(client *http.Client, boardID int) ([]*Pin, error) {
 	const limit = 100
 	pinsResponse, err := GetPins(client, boardID, 1, 0)
 	if err != nil {

@@ -47,6 +47,7 @@ func NewHuaBanApiV3(account, password string) *HuaBanAPIV3 {
 		password:     password,
 		client:       http.DefaultClient,
 		BatchSize:    50,
+		PoolSize:     10,
 		SuccessFiles: make(map[string]*File),
 		UploadOptions: &UploadOptions{
 			Break:        false,
@@ -78,12 +79,22 @@ func (hu *HuaBanAPIV3) Login() error {
 	}
 	return nil
 }
+
+// UploadBatch 批量上传文件到指定的画板。
+// 如果 boardName 为空，则只上传文件而不添加到任何画板。
+// 参数:
+//
+//	files - 待上传的文件路径列表。
+//	boardName - 要添加文件的画板名称。
 func (hu *HuaBanAPIV3) UploadBatch(files []string, boardName string) error {
-	board, err := hu.getBoard(boardName)
-	if err != nil {
-		return err
+	//允许只上传不添加到画板
+	if hu.boardName != "" {
+		board, err := hu.getBoard(boardName)
+		if err != nil {
+			return err
+		}
+		hu.boardID = board.BoardId
 	}
-	hu.boardID = board.BoardId
 	for i := 0; i < len(files); i += hu.BatchSize {
 		end := i + hu.BatchSize
 		if end > len(files) {
@@ -135,15 +146,15 @@ func (hu *HuaBanAPIV3) reAddBoard(client *http.Client, body *BatchInfo) error {
 func (hu *HuaBanAPIV3) upload(files []string) (map[string]*File, error) {
 	eg := errgroup.Group{}
 	//用于控制并发的大小
-	//ch := make(chan struct{}, hu.PoolSize)
+	ch := make(chan struct{}, hu.PoolSize)
 	ret := map[string]*File{}
 	var lock sync.Mutex
 	for i, file := range files {
 		eg.Go(func() error {
-			//ch <- struct{}{}
-			//defer func() {
-			//	<-ch
-			//}()
+			ch <- struct{}{}
+			defer func() {
+				<-ch
+			}()
 			index := i // 重新声明 i 为局部变量
 			filePath := file
 			fileInfo, err := upload(hu.client, hu.Header, filePath)
