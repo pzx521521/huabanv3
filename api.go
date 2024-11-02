@@ -1,6 +1,8 @@
 package huabanv3
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"golang.org/x/sync/errgroup"
@@ -88,7 +90,8 @@ func (hu *HuaBanAPIV3) Login() error {
 //	boardName - 要添加文件的画板名称。
 func (hu *HuaBanAPIV3) UploadBatch(files []string, boardName string) error {
 	//允许只上传不添加到画板
-	if hu.boardName != "" {
+	if boardName != "" {
+		hu.boardName = boardName
 		board, err := hu.getBoard(boardName)
 		if err != nil {
 			return err
@@ -217,5 +220,32 @@ func (hu *HuaBanAPIV3) uploadBatch(files []string) error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (hu *HuaBanAPIV3) ChangeTags(info *PutPinInfo) error {
+	//'{"pin_id":6375141434,"board_id":94018210,"text":"灰黑红805f11","link":"213123","tags":["测试长度的标签"],"aigc":{"aigc_category":"stable_diffusion","model":"123123123","prompt":"11111111"}}'
+	if info == nil || info.PinId == 0 || info.BoardId == 0 {
+		return nil
+	}
+	apiUrl := fmt.Sprintf("%s/v3/pins/%d", DOMAIN, info.PinId)
+	jsonData, err := json.Marshal(info)
+	// 创建请求主体
+	req, err := http.NewRequest("PUT", apiUrl, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return err
+	}
+	SetHeader(req, hu.Header)
+	SetHeaderAsJson(req)
+	res, err := hu.client.Do(req)
+	if err != nil {
+		return errors.Join(errors.New("修改信息失败: "), err)
+	}
+
+	var pinResponse map[string]interface{}
+	if err := json.NewDecoder(res.Body).Decode(&pinResponse); err != nil {
+		return err
+	}
+	log.Printf("修改信息成功%v\n", pinResponse)
 	return nil
 }

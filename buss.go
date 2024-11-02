@@ -17,11 +17,16 @@ import (
 )
 
 // 代理 通过不同ip下载/抓包
-func getProxyHttpClient() *http.Client {
+func GetProxyHttpClient(porxyUrl string) *http.Client {
 	// 创建代理 URL
+	if porxyUrl == "" {
+		porxyUrl = "http://localhost:7897"
+	}
+	// clash 代理
 	//proxyURL, _ := url.Parse("http://localhost:7897")
 	//charles 代理
-	proxyURL, _ := url.Parse("http://localhost:8888")
+	//proxyURL, _ := url.Parse("http://localhost:8888")
+	proxyURL, _ := url.Parse(porxyUrl)
 	// 创建一个带有代理的 Transport
 	transport := &http.Transport{
 		Proxy: http.ProxyURL(proxyURL),
@@ -71,7 +76,10 @@ func getCookie(client *http.Client, account, password string) (string, error) {
 	}
 	// 处理响应
 	responseText := string(body)
-	log.Printf("用户名密码登录范湖:%v\n", responseText)
+	if !strings.HasPrefix(responseText, "Found.") {
+		msg := fmt.Sprintf("用户名密码登录失败:%v\n", responseText)
+		return "", errors.New(msg)
+	}
 
 	// 提取 Cookie
 	cookies := res.Cookies()
@@ -304,11 +312,16 @@ func GetAllFiles(path string) ([]string, error) {
 			return nil
 		}
 		switch strings.ToLower(filepath.Ext(path)) {
-		case ".jpg", ".png", ".jpeg", ".webp", ".gif":
+		case ".jpg", ".png", ".jpeg", ".webp", ".gif", "bmp":
 			files = append(files, path)
 		}
 		return nil
 	})
 
 	return files, err
+}
+
+func GetImgUrl(f *File) string {
+	return fmt.Sprintf("https://%s.huaban.com/%s",
+		f.Bucket, f.Key)
 }

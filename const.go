@@ -1,6 +1,9 @@
 package huabanv3
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+)
 
 const COOKIEJSONPATH = "./cookie.json"
 const DOMAIN = "https://huaban.com"
@@ -59,6 +62,19 @@ type File struct {
 	} `json:"colors"`
 }
 
+const (
+	ImgSize_SQ180 = "_sq180webp"
+	ImgSize_SQ490 = "_sq490webp"
+	ImgSize_W240  = "_fw240webp"
+	ImgSize_W658  = "_fw658webp"
+	ImgSize_W1200 = "_fw1200webp"
+)
+
+func (f *File) GetImgUrl(suffix string) string {
+	return fmt.Sprintf("https://%s.huaban.com/%s%s",
+		f.Bucket, f.Key, suffix)
+}
+
 type BatchInfo struct {
 	BoardId int          `json:"board_id"`
 	Pins    []*UploadPin `json:"pins"`
@@ -69,9 +85,18 @@ type UploadPin struct {
 	Tags   []string `json:"tags,omitempty"`
 	Aigc   *Aigc    `json:"aigc,omitempty"`
 }
+type PutPinInfo struct {
+	PinId   int64    `json:"pin_id"`
+	BoardId int      `json:"board_id"`
+	Text    string   `json:"text,omitempty"`
+	Link    string   `json:"link,omitempty"`
+	Tags    []string `json:"tags,omitempty"`
+	Aigc    *Aigc    `json:"aigc,omitempty"`
+}
 type Aigc struct {
 	AigcCategory string `json:"aigc_category,omitempty"`
 	Prompt       string `json:"prompt,omitempty"`
+	Model        string `json:"model,omitempty"`
 }
 
 // Pin 表示图钉信息
