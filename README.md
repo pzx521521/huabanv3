@@ -13,8 +13,8 @@
 bilibili跨域很好玩,比如在图片中存储数据(写在最后面),然后fetch 获取数据
 
 ## 功能说明
-+ 无需验证的
-  + 批量下载图片
++ 可以不验证的
+  + 批量下载图片(官网限制不登录只能下载56张,验证才能下载全)
     + 错误自动重试
     + 多线程并发数量设置
     + 使用描述作为文件名(未对描述做任何处理,特殊字符可能导致写入失败)
@@ -35,16 +35,54 @@ bilibili跨域很好玩,比如在图片中存储数据(写在最后面),然后fe
 go get github.com/pzx521521/huabanv3
 ```
 
-### 下载图片 无需验证的
+### 下载图片 无需验证的(最多56张)
 ```go
 package main
 import "github.com/pzx521521/huabanv3"
 
 func main()  {
-	huabanv3.DownloadBoard(94004345, 10, false)
+	huabanv3.DownloadBoard(94004345, 10, false, nil)
 }
 ```
+### 下载图片 需验证的
+```go
+package main
+import "github.com/pzx521521/huabanv3"
+import "log"
+func main()  {
+	huaBanApi := huabanv3.NewHuaBanApiV3(your_name, your_password)
+	err := huaBanApi.Login()
+	if err != nil {
+		log.Printf("登录失败...%v\n", err)
+		return
+	}
+	err = huabanv3.DownloadBoard(94004345, 2, false, huaBanApi.Header)
+}
+```
+### 获取画板图片列表 需验证的
+```go
+package main
+import (
+	"github.com/pzx521521/huabanv3"
+	"net/http"
+	"log"
+)
 
+func main()  {
+	huaBanApi := huabanv3.NewHuaBanApiV3(your_name, your_password)
+	err := huaBanApi.Login()
+	if err != nil {
+		log.Printf("登录失败...%v\n", err)
+		return
+	}
+	infos, err := huabanv3.GetImgInfos(http.DefaultClient, 94004345, huaBanApi.Header)
+	if err != nil {
+		log.Printf("获取失败...%v\n", err)
+		return
+	}
+	log.Printf("%s\n", infos)
+}
+```
 ### 上传图片 需要验证的
 ```go
 package main
@@ -66,7 +104,7 @@ type Config struct {
 func main() {
 	config := &Config{
 		Name:  "your_name",
-		Pass:  "",
+		Pass:  "your_password",
 		Board: "your_board_name",
 		Dir:   "your_dir",
 		Debug: true,
