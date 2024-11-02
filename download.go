@@ -20,7 +20,7 @@ import (
 //	boardID - 需要下载的board的ID。
 //	poolSize - 并发下载的最大数量。
 //	rawText - 是否使用网页中的描述字段作为图片的名称。为了防止文件名非法，默认使用图片的ID为文件名。
-func DownloadBoard(boardID int, poolSize int, rawText bool) error {
+func DownloadBoard(boardID int, poolSize int, rawText bool, headers map[string]string) error {
 	dirName := filepath.Join("./download/", strconv.Itoa(boardID))
 	err := os.MkdirAll(dirName, os.ModePerm)
 	if err != nil {
@@ -30,7 +30,7 @@ func DownloadBoard(boardID int, poolSize int, rawText bool) error {
 	var eg errgroup.Group
 	semaphore := make(chan struct{}, poolSize)
 	client := http.DefaultClient
-	pinInfo, err := GetImgInfos(client, boardID)
+	pinInfo, err := GetImgInfos(client, boardID, headers)
 	log.Printf("共发现%v张图片\n", len(pinInfo))
 	if err != nil {
 		return err
@@ -91,9 +91,9 @@ func downloadImageMuti(client *http.Client, imgInfo *Pin, dirPath string, rawTex
 	return nil
 }
 
-func GetImgInfos(client *http.Client, boardID int) ([]*Pin, error) {
-	const limit = 100
-	pinsResponse, err := GetPins(client, boardID, 1, 0)
+func GetImgInfos(client *http.Client, boardID int, headers map[string]string) ([]*Pin, error) {
+	const limit = 40
+	pinsResponse, err := GetPins(client, boardID, limit, 0, headers)
 	if err != nil {
 		return nil, err
 	}
@@ -105,28 +105,27 @@ func GetImgInfos(client *http.Client, boardID int) ([]*Pin, error) {
 	if pinsResponse.Pins == nil || len(pinsResponse.Pins) == 0 {
 		return nil, errors.New("没有图片")
 	}
-	pinId := pinsResponse.Pins[0].PinID
+	pinId := pinsResponse.Pins[len(pinsResponse.Pins)-1].PinID
 	ret := []*Pin{}
-	ret = append(ret, pinsResponse.Pins[0])
-	pageCount := (pinCount + limit - 1) / 100
+	ret = append(ret, pinsResponse.Pins...)
+	pageCount := (pinCount - 1) / limit
 	for i := 0; i < pageCount; i++ {
-		pinsResponse, err := GetPins(client, boardID, 100, pinId)
+		pinsResponse, err := GetPins(client, boardID, limit, pinId, headers)
 		if err != nil {
 			return nil, err
 		}
 		if pinsResponse.Pins == nil || len(pinsResponse.Pins) == 0 {
 			break
 		}
-		for _, pin := range pinsResponse.Pins {
-			ret = append(ret, pin)
-		}
+		ret = append(ret, pinsResponse.Pins...)
 		pinId = pinsResponse.Pins[len(pinsResponse.Pins)-1].PinID
 	}
+	log.Printf("%d共获取到%d张图片\n", boardID, len(ret))
 	return ret, nil
 }
 
 // 获取画板内的图片
-func GetPins(client *http.Client, boardID, limit int, pinId int64) (*PinsResponse, error) {
+func GetPins(client *http.Client, boardID, limit int, pinId int64, headers map[string]string) (*PinsResponse, error) {
 	sPinID := ""
 	if pinId > 0 {
 		sPinID = strconv.FormatInt(pinId, 10)
@@ -136,7 +135,7 @@ func GetPins(client *http.Client, boardID, limit int, pinId int64) (*PinsRespons
 		boardID, limit, sPinID)
 
 	//专门用于查询有多少张图片
-	if limit == 1 {
+	if pinId == 0 {
 		//|Cboard:BOARD_DETAIL
 		apiUrl += "%7Cboard:BOARD_DETAIL"
 	}
@@ -144,7 +143,11 @@ func GetPins(client *http.Client, boardID, limit int, pinId int64) (*PinsRespons
 	if err != nil {
 		return nil, err
 	}
-	SetHeaderUA(req)
+	if headers != nil {
+		SetHeader(req, headers)
+	} else {
+		SetHeaderUA(req)
+	}
 	// 发送请求
 	res, err := client.Do(req)
 	if err != nil {
