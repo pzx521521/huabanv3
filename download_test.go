@@ -9,14 +9,14 @@ import (
 )
 
 func TestDownloadBoard(t *testing.T) {
-	err := DownloadBoard(94004345, 2, false)
+	err := DownloadBoard(94004345, 2, false, nil)
 	if err != nil {
 		t.Fatalf("%v", err)
 	}
 }
 
 func TestGetImgInfos(t *testing.T) {
-	infos, err := GetImgInfos(http.DefaultClient, 94004345)
+	infos, err := GetImgInfos(http.DefaultClient, 94004345, nil)
 	if err != nil {
 		return
 	}
