@@ -36,11 +36,12 @@ type HuaBanAPIV3 struct {
 	BatchSize int
 	// 每次多少个同时上传(上传这50个时.每次上传多少个)
 	// 就是网页上传进度条同时跑的数量
-	PoolSize      int
-	UploadOptions *UploadOptions
-	FailFiles     []string
-	SuccessFiles  map[string]*File
-	Header        map[string]string
+	PoolSize       int
+	UploadOptions  *UploadOptions
+	FailFiles      []string
+	FailBoardFiles []string
+	SuccessFiles   map[string]*File
+	Header         map[string]string
 }
 
 func NewHuaBanApiV3(account, password string) *HuaBanAPIV3 {
@@ -65,21 +66,45 @@ func (hu *HuaBanAPIV3) SetClient(client *http.Client) {
 func (hu *HuaBanAPIV3) Login() error {
 	userName, err := Login(hu.client, hu.account, hu.password, hu.Header)
 	if err != nil {
-		return err
-	}
-	hu.userName = userName
-	if err != nil {
 		log.Printf("获取用户名失败...%v\n", err)
 		return err
 	}
+	hu.userName = userName
 	//获取Board
-	boards, err := getBoards(hu.client, hu.Header, hu.userName)
+	boards, err := GetBoards(hu.client, hu.Header, hu.userName)
 	hu.boards = boards
 	if err != nil {
 		log.Printf("获取画板信息失败...%v\n", err)
 		return err
 	}
 	return nil
+}
+func (hu *HuaBanAPIV3) CheckNotExist(files []string, boardName string) ([]string, error) {
+	board, err := hu.GetBoard(boardName)
+	if err != nil {
+		return nil, err
+	}
+	infos, _ := hu.GetImgInfos(board.BoardId)
+	m := map[string]string{}
+	for _, file := range files {
+		fileName := filepath.Base(file)
+		//fileName = strings.TrimSuffix(fileName, filepath.Ext(fileName))
+		m[fileName] = file
+	}
+
+	for _, info := range infos {
+		_, ok := m[info.RawText]
+		if ok {
+			m[info.RawText] = ""
+		}
+	}
+	var notExitFile []string
+	for key := range m {
+		if m[key] != "" {
+			notExitFile = append(notExitFile, m[key])
+		}
+	}
+	return notExitFile, nil
 }
 
 // UploadBatch 批量上传文件到指定的画板。
@@ -92,12 +117,17 @@ func (hu *HuaBanAPIV3) UploadBatch(files []string, boardName string) error {
 	//允许只上传不添加到画板
 	if boardName != "" {
 		hu.boardName = boardName
-		board, err := hu.getBoard(boardName)
+		board, err := hu.GetBoard(boardName)
 		if err != nil {
 			return err
 		}
 		hu.boardID = board.BoardId
 	}
+	return hu.UploadBatchByBoardID(files, hu.boardID)
+}
+func (hu *HuaBanAPIV3) UploadBatchByBoardID(files []string, boardID int) error {
+	//允许只上传不添加到画板
+	hu.boardID = boardID
 	for i := 0; i < len(files); i += hu.BatchSize {
 		end := i + hu.BatchSize
 		if end > len(files) {
@@ -106,6 +136,8 @@ func (hu *HuaBanAPIV3) UploadBatch(files []string, boardName string) error {
 		batch := files[i:end]
 		err := hu.uploadBatch(batch)
 		if err != nil {
+			log.Printf("goutine:%d批量上传失败:%v\n以下文件未能添加到画板%s\n", i, err, batch)
+			hu.FailBoardFiles = append(hu.FailBoardFiles, batch...)
 			return err
 		}
 	}
@@ -116,8 +148,8 @@ func (hu *HuaBanAPIV3) CreateBoard(boardName string) (*Board, error) {
 	return createBoard(hu.client, hu.Header, boardName)
 }
 
-func (hu *HuaBanAPIV3) getBoard(boardName string) (*Board, error) {
-	board, err := getBoard(hu.client, hu.Header, hu.boards, boardName)
+func (hu *HuaBanAPIV3) GetBoard(boardName string) (*Board, error) {
+	board, err := GetBoard(hu.client, hu.Header, hu.boards, boardName)
 	if err != nil {
 		return nil, err
 	}
@@ -161,14 +193,9 @@ func (hu *HuaBanAPIV3) upload(files []string) (map[string]*File, error) {
 			index := i // 重新声明 i 为局部变量
 			filePath := file
 			fileInfo, err := upload(hu.client, hu.Header, filePath)
-			if err != nil {
+			if err != nil || fileInfo == nil {
 				log.Printf("goutine:%d上传%s失败了:%v\n", index, file, err)
-				if hu.UploadOptions.Break {
-					//出错一个不要传了
-					return errors.New("你设置了Break:出错一个不继续传了")
-				}
-				fileInfo, err = hu.reUpload(i, filePath)
-				log.Printf("%v\n", err)
+				return err
 			}
 			lock.Lock()
 			ret[file] = fileInfo
@@ -248,4 +275,8 @@ func (hu *HuaBanAPIV3) ChangeTags(info *PutPinInfo) error {
 	}
 	log.Printf("修改信息成功%v\n", pinResponse)
 	return nil
+}
+
+func (hu *HuaBanAPIV3) GetImgInfos(boardID int) ([]*Pin, error) {
+	return GetImgInfos(hu.client, boardID, hu.Header)
 }

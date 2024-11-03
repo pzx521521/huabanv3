@@ -148,7 +148,7 @@ func createBoard(client *http.Client, headers map[string]string, title string) (
 	}
 	return boardResponse.Board, nil
 }
-func getBoard(client *http.Client, headers map[string]string, boards *BoardsResponse, boardName string) (board *Board, err error) {
+func GetBoard(client *http.Client, headers map[string]string, boards *BoardsResponse, boardName string) (board *Board, err error) {
 	board = boards.ExistBoard(boardName)
 	if board != nil {
 		return board, nil
@@ -165,7 +165,7 @@ func getBoard(client *http.Client, headers map[string]string, boards *BoardsResp
 }
 
 // 获取用户数据
-func getBoards(client *http.Client, headers map[string]string, username string) (*BoardsResponse, error) {
+func GetBoards(client *http.Client, headers map[string]string, username string) (*BoardsResponse, error) {
 	apiUrl := DOMAIN + "/v3/" + username + "/boards?limit=30"
 	req, _ := http.NewRequest("GET", apiUrl, nil)
 	SetHeader(req, headers)
@@ -257,8 +257,15 @@ func addBoard(client *http.Client, header map[string]string, body *BatchInfo) er
 	}
 
 	var pinResponse map[string]interface{}
-	if err := json.NewDecoder(res.Body).Decode(&pinResponse); err != nil {
+	data, err := io.ReadAll(res.Body)
+	if err != nil {
 		return err
+	}
+	if err := json.Unmarshal(data, &pinResponse); err != nil {
+		return err
+	}
+	if _, ok := pinResponse["result"]; !ok {
+		return errors.New(fmt.Sprintf("添加图片到画板%d失败:%s\n", body.BoardId, data))
 	}
 	a := pinResponse["result"].(map[string]interface{})
 	log.Printf("成功添加%d图片到画板%d\n", len(a), body.BoardId)
@@ -286,9 +293,16 @@ func upload(client *http.Client, header map[string]string, filePath string) (fil
 		return
 	}
 	defer res.Body.Close()
-	err = json.NewDecoder(res.Body).Decode(&fileInfo)
+	data, err := io.ReadAll(res.Body)
+	if err != nil {
+		return
+	}
+	err = json.Unmarshal(data, &fileInfo)
 	if err != nil {
 		return nil, err
+	}
+	if fileInfo.Key == "" {
+		return nil, errors.New(string(data))
 	}
 	log.Printf("上传成功:%s, 地址:%s", filePath, fileInfo.Key)
 	return fileInfo, nil
