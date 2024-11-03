@@ -302,7 +302,12 @@ func upload(client *http.Client, header map[string]string, filePath string) (fil
 		return nil, err
 	}
 	if fileInfo.Key == "" {
-		return nil, errors.New(string(data))
+		var uploadIgnoreError UploadIgnoreError
+		err = json.Unmarshal(data, &uploadIgnoreError)
+		if err != nil {
+			return nil, errors.New(string(data))
+		}
+		return nil, &uploadIgnoreError
 	}
 	log.Printf("上传成功:%s, 地址:%s", filePath, fileInfo.Key)
 	return fileInfo, nil

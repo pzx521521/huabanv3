@@ -194,10 +194,15 @@ func (hu *HuaBanAPIV3) upload(files []string) (map[string]*File, error) {
 			filePath := file
 			fileInfo, err := upload(hu.client, hu.Header, filePath)
 			if err != nil || fileInfo == nil {
-				log.Printf("goutine:%d上传%s失败了:%v\n", index, file, err)
+				log.Printf("goutine:%d上传失败了:%v, 路径%s\n", index, err, file)
+				hu.FailFiles = append(hu.FailFiles, file)
+				if errors.Is(err, &UploadIgnoreError{}) {
+					return nil
+				}
 				return err
 			}
 			lock.Lock()
+			hu.SuccessFiles[filePath] = fileInfo
 			ret[file] = fileInfo
 			lock.Unlock()
 			return nil
@@ -237,7 +242,6 @@ func (hu *HuaBanAPIV3) uploadBatch(files []string) error {
 				Tags:   tags,
 				Aigc:   argc,
 			})
-		hu.SuccessFiles[filePath] = fileInfo
 	}
 	if len(pins) == 0 {
 		return errors.New("没有文件可以上传")

@@ -5,6 +5,22 @@ import (
 	"net/http"
 )
 
+type UploadIgnoreError struct {
+	Msg string `json:"msg"`
+	Err int    `json:"err"`
+}
+
+func (e *UploadIgnoreError) Error() string {
+	return fmt.Sprintf("Error %d: %s", e.Err, e.Msg)
+}
+
+func (e *UploadIgnoreError) Is(target error) bool {
+	// 比较错误代码 500 是滑动验证, 此时应停止上传
+	return e.Err != 500
+}
+
+//
+
 const COOKIEJSONPATH = "./cookie.json"
 const DOMAIN = "https://huaban.com"
 const UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
