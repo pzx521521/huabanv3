@@ -73,17 +73,18 @@ type File struct {
 	Theme  string `json:"theme"`
 	UserId int    `json:"user_id"`
 	Colors []struct {
-		Color int `json:"color"`
-		Ratio int `json:"ratio"`
+		Color int     `json:"color"`
+		Ratio float64 `json:"ratio"`
 	} `json:"colors"`
 }
 
 const (
-	ImgSize_SQ180 = "_sq180webp"
-	ImgSize_SQ490 = "_sq490webp"
-	ImgSize_W240  = "_fw240webp"
-	ImgSize_W658  = "_fw658webp"
-	ImgSize_W1200 = "_fw1200webp"
+	ImgSize_SQ180  = "_sq180webp"
+	ImgSize_SQ490  = "_sq490webp"
+	ImgSize_W240   = "_fw240webp"
+	ImgSize_W658   = "_fw658webp"
+	ImgSize_W1200  = "_fw1200webp"
+	ImgSize_Origin = ""
 )
 
 func (f *File) GetImgUrl(suffix string) string {
