@@ -7,8 +7,8 @@
 ## 与[bilibili](https://github.com/xlzy520/bilibili-img-uploader)图床比较
 |          | 跨域 | 网页直接使用 | 不压缩          |
 |----------|---|--------|--------------|
-| bilibili | ✅ | ❌(需要no-referrer)  | ❌(部分压缩机制不知道) |
-| huaban   | ❌ | ✅      | ✅            |
+| bilibili | ✅ |  | ❌(部分压缩机制不知道) |
+| huaban   | ❌ | ❌(需要no-referrer)      | ✅            |
 
 bilibili跨域很好玩,比如在图片中存储数据(写在最后面),然后fetch 获取数据
 
