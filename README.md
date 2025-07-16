@@ -1,3 +1,6 @@
+# 由于花瓣更新了登录方式(jwt) 本项目已失效(由于没有需求了暂时不做研究)
+
+
 # [花瓣网图片 API v3](https://github.com/pzx521521/huabanv3) golang版本
 花瓣网图片批量上传/下载工具  
 [python版本的](https://github.com/Pingze-github/HuabanBatchUpload)这个太老了 已经不能用了,现在是V3接口  
